@@ -9,6 +9,7 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+.claude
 
 # testing
 /coverage
@@ -35,6 +36,12 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# SQLite database
+/data/
+
+# Uploaded images (optional - remove if you want to track uploads)
+/public/uploads/
 
 # typescript
 *.tsbuildinfo
