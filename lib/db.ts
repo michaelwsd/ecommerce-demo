@@ -122,13 +122,17 @@ export async function createInquiry(
   customerName: string,
   customerPhone: string,
   productName: string,
-  productId: number
+  productId: number,
+  collectionDate?: string,
+  collectionTime?: string
 ) {
   const { error } = await supabase.from('inquiries').insert({
     customer_name: customerName,
     customer_phone: customerPhone,
     product_name: productName,
     product_id: productId,
+    collection_date: collectionDate || null,
+    collection_time: collectionTime || null,
   });
 
   if (error) throw error;
@@ -236,4 +240,48 @@ export async function deleteProductImage(filename: string) {
     .remove([filename]);
 
   if (error) throw error;
+}
+
+// Clerk user operations
+export async function getClerkUser(clerkUserId: string) {
+  const { data, error } = await supabase
+    .from('clerk_users')
+    .select('*')
+    .eq('clerk_user_id', clerkUserId)
+    .single();
+
+  if (error && error.code !== 'PGRST116') throw error;
+  return data;
+}
+
+export async function createClerkUser(
+  clerkUserId: string,
+  email: string,
+  name: string,
+  phone: string
+) {
+  const { data, error } = await supabase
+    .from('clerk_users')
+    .insert({
+      clerk_user_id: clerkUserId,
+      email,
+      name,
+      phone,
+    })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+export async function clerkUserExists(clerkUserId: string) {
+  const { data, error } = await supabase
+    .from('clerk_users')
+    .select('id')
+    .eq('clerk_user_id', clerkUserId)
+    .single();
+
+  if (error && error.code !== 'PGRST116') throw error;
+  return !!data;
 }

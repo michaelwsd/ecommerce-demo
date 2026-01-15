@@ -21,6 +21,8 @@ export interface Inquiry {
   customer_phone: string;
   product_name: string;
   product_id: number;
+  collection_date: string | null;
+  collection_time: string | null;
   created_at: string;
 }
 
@@ -38,5 +40,14 @@ export interface OwnerMessage {
   content: string;
   metadata: string | null;
   is_read: number;
+  created_at: string;
+}
+
+export interface ClerkUser {
+  id: number;
+  clerk_user_id: string;
+  email: string;
+  name: string;
+  phone: string;
   created_at: string;
 }

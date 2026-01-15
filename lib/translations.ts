@@ -8,6 +8,8 @@ export const translations = {
     cancel: 'Cancel',
     delete: 'Delete',
     save: 'Save',
+    refresh: 'Refresh',
+    refreshing: 'Refreshing...',
 
     // Login choice
     welcomeTitle: 'Welcome to Our Store',
@@ -108,6 +110,26 @@ export const translations = {
     failedInquiry: 'Failed to send inquiry',
     failedInquiryRetry: 'Failed to send inquiry. Please try again.',
 
+    // Collection date/time
+    collectionDate: 'Collection Date',
+    collectionTime: 'Collection Time',
+    collectionRequired: 'Please select a collection date and time',
+    preferredCollection: 'Preferred Collection',
+    selectDate: 'Select date',
+    selectTime: 'Select time',
+
+    // Clerk authentication
+    signIn: 'Sign In',
+    signUp: 'Sign Up',
+    signOut: 'Sign Out',
+    verificationRequired: 'Verification Required',
+    newCustomerVerification: 'As a new customer, please enter the verification code from the store owner.',
+    requestCode: 'Request Code',
+    requestingCode: 'Requesting...',
+    codeRequested: 'Code sent to store owner. Please wait for them to provide it.',
+    enterYourDetails: 'Enter Your Details',
+    email: 'Email',
+
     // Language
     language: 'Language',
     english: 'English',
@@ -120,6 +142,8 @@ export const translations = {
     cancel: '取消',
     delete: '删除',
     save: '保存',
+    refresh: '刷新',
+    refreshing: '刷新中...',
 
     // Login choice
     welcomeTitle: '欢迎光临本店',
@@ -219,6 +243,26 @@ export const translations = {
     inquirySent: '咨询已发送！店主将很快与您联系。',
     failedInquiry: '发送咨询失败',
     failedInquiryRetry: '发送咨询失败，请重试。',
+
+    // Collection date/time
+    collectionDate: '取货日期',
+    collectionTime: '取货时间',
+    collectionRequired: '请选择取货日期和时间',
+    preferredCollection: '首选取货时间',
+    selectDate: '选择日期',
+    selectTime: '选择时间',
+
+    // Clerk authentication
+    signIn: '登录',
+    signUp: '注册',
+    signOut: '退出',
+    verificationRequired: '需要验证',
+    newCustomerVerification: '作为新客户，请输入店主提供的验证码。',
+    requestCode: '请求验证码',
+    requestingCode: '请求中...',
+    codeRequested: '验证码已发送给店主。请等待店主提供。',
+    enterYourDetails: '输入您的信息',
+    email: '邮箱',
 
     // Language
     language: '语言',

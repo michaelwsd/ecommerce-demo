@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createInquiry, getAllInquiries, getVerifiedDevice, deleteInquiry } from '@/lib/db';
+import { auth } from '@clerk/nextjs/server';
+import { createInquiry, getAllInquiries, getVerifiedDevice, deleteInquiry, getClerkUser } from '@/lib/db';
 import { sendInquiryNotificationToOwner } from '@/lib/email';
 
 export async function GET(request: NextRequest) {
@@ -26,25 +27,40 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const deviceId = request.cookies.get('device_id')?.value;
+    let customerName: string | undefined;
+    let customerPhone: string | undefined;
 
-    if (!deviceId) {
+    // First try Clerk authentication
+    const { userId } = await auth();
+    if (userId) {
+      const clerkUser = await getClerkUser(userId);
+      if (clerkUser) {
+        customerName = clerkUser.name;
+        customerPhone = clerkUser.phone;
+      }
+    }
+
+    // Fall back to device-based authentication
+    if (!customerName || !customerPhone) {
+      const deviceId = request.cookies.get('device_id')?.value;
+      if (deviceId) {
+        const device = await getVerifiedDevice(deviceId) as { name?: string; phone?: string } | null;
+        if (device?.name && device?.phone) {
+          customerName = device.name;
+          customerPhone = device.phone;
+        }
+      }
+    }
+
+    // Check if we have customer info from either method
+    if (!customerName || !customerPhone) {
       return NextResponse.json(
         { error: 'Not authenticated' },
         { status: 401 }
       );
     }
 
-    const device = await getVerifiedDevice(deviceId) as { name?: string; phone?: string } | null;
-
-    if (!device || !device.name || !device.phone) {
-      return NextResponse.json(
-        { error: 'Customer information not found' },
-        { status: 401 }
-      );
-    }
-
-    const { productId, productName } = await request.json();
+    const { productId, productName, collectionDate, collectionTime } = await request.json();
 
     if (!productId || !productName) {
       return NextResponse.json(
@@ -53,11 +69,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create inquiry record
-    await createInquiry(device.name, device.phone, productName, productId);
+    if (!collectionDate || !collectionTime) {
+      return NextResponse.json(
+        { error: 'Collection date and time are required' },
+        { status: 400 }
+      );
+    }
 
-    // Send notification to owner
-    await sendInquiryNotificationToOwner(device.name, device.phone, productName);
+    // Create inquiry record with collection date/time
+    await createInquiry(customerName, customerPhone, productName, productId, collectionDate, collectionTime);
+
+    // Send notification to owner with collection info
+    await sendInquiryNotificationToOwner(customerName, customerPhone, productName, collectionDate, collectionTime);
 
     return NextResponse.json({
       success: true,
