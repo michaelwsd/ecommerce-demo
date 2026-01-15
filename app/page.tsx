@@ -19,6 +19,16 @@ interface Inquiry {
   created_at: string;
 }
 
+interface OwnerMessage {
+  id: number;
+  type: 'verification' | 'inquiry';
+  title: string;
+  content: string;
+  metadata: string | null;
+  is_read: number;
+  created_at: string;
+}
+
 type ViewState =
   | 'loading'
   | 'login-choice'
@@ -40,7 +50,9 @@ export default function Home() {
   const [ownerPassword, setOwnerPassword] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
-  const [adminTab, setAdminTab] = useState<'products' | 'inquiries'>('products');
+  const [inboxMessages, setInboxMessages] = useState<OwnerMessage[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [adminTab, setAdminTab] = useState<'inbox' | 'products' | 'inquiries'>('inbox');
 
   // Product form state
   const [productName, setProductName] = useState('');
@@ -73,6 +85,7 @@ export default function Home() {
       if (ownerData.authenticated) {
         await loadProducts();
         await loadInquiries();
+        await loadInbox();
         setView('owner-dashboard');
         return;
       }
@@ -119,6 +132,17 @@ export default function Home() {
     }
   };
 
+  const loadInbox = async () => {
+    try {
+      const res = await fetch('/api/inbox');
+      const data = await res.json();
+      setInboxMessages(data.messages || []);
+      setUnreadCount(data.unreadCount || 0);
+    } catch {
+      console.error('Failed to load inbox');
+    }
+  };
+
   const handleOwnerLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -136,6 +160,7 @@ export default function Home() {
       if (data.success) {
         await loadProducts();
         await loadInquiries();
+        await loadInbox();
         setView('owner-dashboard');
       } else {
         setError(data.error || 'Invalid credentials');
@@ -308,6 +333,45 @@ export default function Home() {
     setSelectedProduct(product);
   };
 
+  const handleMarkMessageRead = async (messageId: number) => {
+    try {
+      await fetch('/api/inbox', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'markRead', messageId }),
+      });
+      await loadInbox();
+    } catch {
+      console.error('Failed to mark message as read');
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      await fetch('/api/inbox', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'markAllRead' }),
+      });
+      await loadInbox();
+    } catch {
+      console.error('Failed to mark all messages as read');
+    }
+  };
+
+  const handleDeleteMessage = async (messageId: number) => {
+    try {
+      await fetch('/api/inbox', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messageId }),
+      });
+      await loadInbox();
+    } catch {
+      console.error('Failed to delete message');
+    }
+  };
+
   const handleInquiry = async () => {
     if (!selectedProduct) return;
 
@@ -461,6 +525,12 @@ export default function Home() {
 
         <div className="tabs">
           <button
+            className={`tab ${adminTab === 'inbox' ? 'active' : ''}`}
+            onClick={() => setAdminTab('inbox')}
+          >
+            Inbox {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
+          </button>
+          <button
             className={`tab ${adminTab === 'products' ? 'active' : ''}`}
             onClick={() => setAdminTab('products')}
           >
@@ -473,6 +543,68 @@ export default function Home() {
             Inquiries ({inquiries.length})
           </button>
         </div>
+
+        {adminTab === 'inbox' && (
+          <>
+            <div className="inbox-header">
+              <h2 className="section-title">Messages</h2>
+              {inboxMessages.length > 0 && unreadCount > 0 && (
+                <button
+                  className="btn btn-secondary"
+                  style={{ padding: '8px 16px', minHeight: 'auto', fontSize: '14px' }}
+                  onClick={handleMarkAllRead}
+                >
+                  Mark All Read
+                </button>
+              )}
+            </div>
+            {inboxMessages.length === 0 ? (
+              <div className="empty-state">
+                <div className="empty-icon">📭</div>
+                <p>No messages yet</p>
+                <span>Verification codes and customer inquiries will appear here</span>
+              </div>
+            ) : (
+              <div className="message-list">
+                {inboxMessages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className={`message-card ${msg.is_read ? 'read' : 'unread'}`}
+                    onClick={() => !msg.is_read && handleMarkMessageRead(msg.id)}
+                  >
+                    <div className="message-icon">
+                      {msg.type === 'verification' ? '🔑' : '💬'}
+                    </div>
+                    <div className="message-content">
+                      <div className="message-header">
+                        <h3>{msg.title}</h3>
+                        <span className="message-time">
+                          {new Date(msg.created_at).toLocaleDateString()} {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      <p className="message-body">{msg.content}</p>
+                      <div className="message-actions">
+                        {!msg.is_read && (
+                          <span className="unread-badge">New</span>
+                        )}
+                        <button
+                          className="btn-icon"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteMessage(msg.id);
+                          }}
+                          title="Delete message"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        )}
 
         {adminTab === 'products' && (
           <>

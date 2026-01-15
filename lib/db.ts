@@ -66,6 +66,19 @@ function initializeDb(db: Database.Database) {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )
   `);
+
+  // Owner messages/inbox table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS owner_messages (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      type TEXT NOT NULL,
+      title TEXT NOT NULL,
+      content TEXT NOT NULL,
+      metadata TEXT,
+      is_read INTEGER DEFAULT 0,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
 }
 
 // Product operations
@@ -135,4 +148,44 @@ export function createInquiry(customerName: string, customerPhone: string, produ
 export function getAllInquiries() {
   const db = getDb();
   return db.prepare('SELECT * FROM inquiries ORDER BY created_at DESC').all();
+}
+
+// Owner message/inbox operations
+export function createOwnerMessage(
+  type: 'verification' | 'inquiry',
+  title: string,
+  content: string,
+  metadata?: Record<string, unknown>
+) {
+  const db = getDb();
+  const stmt = db.prepare(
+    'INSERT INTO owner_messages (type, title, content, metadata) VALUES (?, ?, ?, ?)'
+  );
+  return stmt.run(type, title, content, metadata ? JSON.stringify(metadata) : null);
+}
+
+export function getAllOwnerMessages() {
+  const db = getDb();
+  return db.prepare('SELECT * FROM owner_messages ORDER BY created_at DESC').all();
+}
+
+export function getUnreadMessageCount() {
+  const db = getDb();
+  const result = db.prepare('SELECT COUNT(*) as count FROM owner_messages WHERE is_read = 0').get() as { count: number };
+  return result.count;
+}
+
+export function markMessageAsRead(id: number) {
+  const db = getDb();
+  return db.prepare('UPDATE owner_messages SET is_read = 1 WHERE id = ?').run(id);
+}
+
+export function markAllMessagesAsRead() {
+  const db = getDb();
+  return db.prepare('UPDATE owner_messages SET is_read = 1').run();
+}
+
+export function deleteOwnerMessage(id: number) {
+  const db = getDb();
+  return db.prepare('DELETE FROM owner_messages WHERE id = ?').run(id);
 }

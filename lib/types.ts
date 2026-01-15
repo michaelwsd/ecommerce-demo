@@ -30,3 +30,13 @@ export interface CustomerSession {
   phone: string;
   verified: boolean;
 }
+
+export interface OwnerMessage {
+  id: number;
+  type: 'verification' | 'inquiry';
+  title: string;
+  content: string;
+  metadata: string | null;
+  is_read: number;
+  created_at: string;
+}
