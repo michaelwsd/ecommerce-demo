@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Image from 'next/image';
+import { translations, Language, TranslationKey } from '@/lib/translations';
 
 interface Product {
   id: number;
@@ -45,8 +46,12 @@ export default function Home() {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Language state
+  const [language, setLanguage] = useState<Language>('en');
+  const t = (key: TranslationKey) => translations[language][key];
+
   // Owner state
-  const [ownerEmail, setOwnerEmail] = useState('');
+  const [ownerUsername, setOwnerUsername] = useState('');
   const [ownerPassword, setOwnerPassword] = useState('');
   const [products, setProducts] = useState<Product[]>([]);
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
@@ -63,7 +68,6 @@ export default function Home() {
   // Customer state
   const [deviceId, setDeviceId] = useState('');
   const [verificationCode, setVerificationCode] = useState('');
-  const [pendingCode, setPendingCode] = useState('');
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
   const [currentCustomer, setCurrentCustomer] = useState<{ name: string; phone: string } | null>(null);
@@ -152,7 +156,7 @@ export default function Home() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: ownerEmail, password: ownerPassword }),
+        body: JSON.stringify({ username: ownerUsername, password: ownerPassword }),
       });
 
       const data = await res.json();
@@ -175,7 +179,7 @@ export default function Home() {
   const handleOwnerLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
     setView('login-choice');
-    setOwnerEmail('');
+    setOwnerUsername('');
     setOwnerPassword('');
   };
 
@@ -201,10 +205,6 @@ export default function Home() {
         }
       } else {
         setDeviceId(data.deviceId);
-        // In development, show the code
-        if (data.code) {
-          setPendingCode(data.code);
-        }
         setView('customer-code');
       }
     } catch {
@@ -372,6 +372,19 @@ export default function Home() {
     }
   };
 
+  const handleAcknowledgeInquiry = async (inquiryId: number) => {
+    try {
+      await fetch('/api/inquiry', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ inquiryId }),
+      });
+      await loadInquiries();
+    } catch {
+      console.error('Failed to acknowledge inquiry');
+    }
+  };
+
   const handleInquiry = async () => {
     if (!selectedProduct) return;
 
@@ -391,13 +404,13 @@ export default function Home() {
       const data = await res.json();
 
       if (data.success) {
-        setSuccess(data.message);
+        setSuccess(t('inquirySent'));
         setSelectedProduct(null);
       } else {
-        setError(data.error || 'Failed to send inquiry');
+        setError(data.error || t('failedInquiry'));
       }
     } catch {
-      setError('Failed to send inquiry. Please try again.');
+      setError(t('failedInquiryRetry'));
     } finally {
       setLoading(false);
     }
@@ -410,11 +423,30 @@ export default function Home() {
     }
   }, [view, handleCustomerVerifyRequest]);
 
+  // Language switcher component
+  const LanguageSwitcher = () => (
+    <div className="language-switcher">
+      <span className="lang-icon">🌐</span>
+      <button
+        className={`lang-btn ${language === 'en' ? 'active' : ''}`}
+        onClick={() => setLanguage('en')}
+      >
+        English
+      </button>
+      <button
+        className={`lang-btn ${language === 'zh' ? 'active' : ''}`}
+        onClick={() => setLanguage('zh')}
+      >
+        中文
+      </button>
+    </div>
+  );
+
   // Render loading state
   if (view === 'loading') {
     return (
       <div className="container" style={{ textAlign: 'center', paddingTop: '100px' }}>
-        <p style={{ fontSize: '24px' }}>Loading...</p>
+        <p style={{ fontSize: '24px' }}>{t('loading')}</p>
       </div>
     );
   }
@@ -423,9 +455,10 @@ export default function Home() {
   if (view === 'login-choice') {
     return (
       <div className="container">
+        <LanguageSwitcher />
         <div className="header">
-          <h1>Welcome to Our Store</h1>
-          <p>Please select how you would like to continue</p>
+          <h1>{t('welcomeTitle')}</h1>
+          <p>{t('welcomeSubtitle')}</p>
         </div>
 
         <div style={{ maxWidth: '400px', margin: '0 auto' }}>
@@ -434,14 +467,14 @@ export default function Home() {
             style={{ width: '100%', marginBottom: '16px' }}
             onClick={() => setView('owner-login')}
           >
-            I am the Store Owner
+            {t('iAmOwner')}
           </button>
           <button
             className="btn btn-secondary"
             style={{ width: '100%' }}
             onClick={() => setView('customer-verify')}
           >
-            I am a Customer
+            {t('iAmCustomer')}
           </button>
         </div>
       </div>
@@ -452,9 +485,10 @@ export default function Home() {
   if (view === 'owner-login') {
     return (
       <div className="container">
+        <LanguageSwitcher />
         <div className="header">
-          <h1>Owner Login</h1>
-          <p>Enter your credentials to access the dashboard</p>
+          <h1>{t('ownerLoginTitle')}</h1>
+          <p>{t('ownerLoginSubtitle')}</p>
         </div>
 
         <div style={{ maxWidth: '400px', margin: '0 auto' }}>
@@ -462,25 +496,25 @@ export default function Home() {
 
           <form onSubmit={handleOwnerLogin}>
             <div className="form-group">
-              <label className="label">Email</label>
+              <label className="label">{t('username')}</label>
               <input
-                type="email"
+                type="text"
                 className="input"
-                value={ownerEmail}
-                onChange={(e) => setOwnerEmail(e.target.value)}
-                placeholder="Enter your email"
+                value={ownerUsername}
+                onChange={(e) => setOwnerUsername(e.target.value)}
+                placeholder={t('usernamePlaceholder')}
                 required
               />
             </div>
 
             <div className="form-group">
-              <label className="label">Password</label>
+              <label className="label">{t('password')}</label>
               <input
                 type="password"
                 className="input"
                 value={ownerPassword}
                 onChange={(e) => setOwnerPassword(e.target.value)}
-                placeholder="Enter your password"
+                placeholder={t('passwordPlaceholder')}
                 required
               />
             </div>
@@ -491,7 +525,7 @@ export default function Home() {
               style={{ width: '100%', marginBottom: '16px' }}
               disabled={loading}
             >
-              {loading ? 'Logging in...' : 'Login'}
+              {loading ? t('loggingIn') : t('login')}
             </button>
           </form>
 
@@ -500,7 +534,7 @@ export default function Home() {
             style={{ width: '100%' }}
             onClick={() => setView('login-choice')}
           >
-            Back
+            {t('back')}
           </button>
         </div>
       </div>
@@ -511,15 +545,16 @@ export default function Home() {
   if (view === 'owner-dashboard') {
     return (
       <div className="container">
+        <LanguageSwitcher />
         <div className="header">
-          <h1>Owner Dashboard</h1>
-          <p>Manage your products and view customer inquiries</p>
+          <h1>{t('dashboardTitle')}</h1>
+          <p>{t('dashboardSubtitle')}</p>
           <button
             className="btn btn-secondary"
             style={{ marginTop: '16px' }}
             onClick={handleOwnerLogout}
           >
-            Logout
+            {t('logout')}
           </button>
         </div>
 
@@ -528,48 +563,48 @@ export default function Home() {
             className={`tab ${adminTab === 'inbox' ? 'active' : ''}`}
             onClick={() => setAdminTab('inbox')}
           >
-            Inbox {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
+            {t('inbox')} {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
           </button>
           <button
             className={`tab ${adminTab === 'products' ? 'active' : ''}`}
             onClick={() => setAdminTab('products')}
           >
-            Products
+            {t('products')}
           </button>
           <button
             className={`tab ${adminTab === 'inquiries' ? 'active' : ''}`}
             onClick={() => setAdminTab('inquiries')}
           >
-            Inquiries ({inquiries.length})
+            {t('inquiries')} ({inquiries.length})
           </button>
         </div>
 
         {adminTab === 'inbox' && (
           <>
             <div className="inbox-header">
-              <h2 className="section-title">Messages</h2>
+              <h2 className="section-title">{t('messages')}</h2>
               {inboxMessages.length > 0 && unreadCount > 0 && (
                 <button
                   className="btn btn-secondary"
                   style={{ padding: '8px 16px', minHeight: 'auto', fontSize: '14px' }}
                   onClick={handleMarkAllRead}
                 >
-                  Mark All Read
+                  {t('markAllRead')}
                 </button>
               )}
             </div>
             {inboxMessages.length === 0 ? (
               <div className="empty-state">
                 <div className="empty-icon">📭</div>
-                <p>No messages yet</p>
-                <span>Verification codes and customer inquiries will appear here</span>
+                <p>{t('noMessages')}</p>
+                <span>{t('messagesWillAppear')}</span>
               </div>
             ) : (
               <div className="message-list">
                 {inboxMessages.map((msg) => (
                   <div
                     key={msg.id}
-                    className={`message-card ${msg.is_read ? 'read' : 'unread'}`}
+                    className={`message-card ${msg.is_read ? 'read' : 'unread'} ${msg.type === 'verification' ? 'verification-message' : ''}`}
                     onClick={() => !msg.is_read && handleMarkMessageRead(msg.id)}
                   >
                     <div className="message-icon">
@@ -579,13 +614,20 @@ export default function Home() {
                       <div className="message-header">
                         <h3>{msg.title}</h3>
                         <span className="message-time">
-                          {new Date(msg.created_at).toLocaleDateString()} {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {new Date(msg.created_at).toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US')} {new Date(msg.created_at).toLocaleTimeString(language === 'zh' ? 'zh-CN' : 'en-US', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
-                      <p className="message-body">{msg.content}</p>
+                      {msg.type === 'verification' ? (
+                        <div className="verification-code-display">
+                          <span className="code-label">{t('verificationCode')}: </span>
+                          <span className="code-value">{msg.content}</span>
+                        </div>
+                      ) : (
+                        <p className="message-body">{msg.content}</p>
+                      )}
                       <div className="message-actions">
                         {!msg.is_read && (
-                          <span className="unread-badge">New</span>
+                          <span className="unread-badge">{t('new')}</span>
                         )}
                         <button
                           className="btn-icon"
@@ -593,7 +635,7 @@ export default function Home() {
                             e.stopPropagation();
                             handleDeleteMessage(msg.id);
                           }}
-                          title="Delete message"
+                          title={t('delete')}
                         >
                           🗑️
                         </button>
@@ -612,34 +654,34 @@ export default function Home() {
             {success && <div className="message message-success">{success}</div>}
 
             <div className="card" style={{ marginBottom: '32px' }}>
-              <h2 className="section-title">Add New Product</h2>
+              <h2 className="section-title">{t('addNewProduct')}</h2>
               <form onSubmit={handleAddProduct}>
                 <div className="form-group">
-                  <label className="label">Product Name</label>
+                  <label className="label">{t('productName')}</label>
                   <input
                     type="text"
                     className="input"
                     value={productName}
                     onChange={(e) => setProductName(e.target.value)}
-                    placeholder="Enter product name"
+                    placeholder={t('productNamePlaceholder')}
                     required
                   />
                 </div>
 
                 <div className="form-group">
-                  <label className="label">Description</label>
+                  <label className="label">{t('description')}</label>
                   <textarea
                     className="input"
                     value={productDescription}
                     onChange={(e) => setProductDescription(e.target.value)}
-                    placeholder="Enter product description"
+                    placeholder={t('descriptionPlaceholder')}
                     rows={3}
                     style={{ resize: 'vertical' }}
                   />
                 </div>
 
                 <div className="form-group">
-                  <label className="label">Price ($)</label>
+                  <label className="label">{t('price')}</label>
                   <input
                     type="number"
                     className="input"
@@ -653,7 +695,7 @@ export default function Home() {
                 </div>
 
                 <div className="form-group">
-                  <label className="label">Product Image</label>
+                  <label className="label">{t('productImage')}</label>
                   <input
                     type="file"
                     className="input"
@@ -668,23 +710,23 @@ export default function Home() {
                   className="btn btn-primary"
                   disabled={loading}
                 >
-                  {loading ? 'Adding...' : 'Add Product'}
+                  {loading ? t('adding') : t('addProduct')}
                 </button>
               </form>
             </div>
 
-            <h2 className="section-title">Current Products ({products.length})</h2>
+            <h2 className="section-title">{t('currentProducts')} ({products.length})</h2>
             {products.length === 0 ? (
-              <p style={{ color: '#6b7280' }}>No products yet. Add your first product above.</p>
+              <p style={{ color: '#6b7280' }}>{t('noProducts')}</p>
             ) : (
               <div style={{ overflowX: 'auto' }}>
                 <table className="admin-table">
                   <thead>
                     <tr>
-                      <th>Image</th>
-                      <th>Name</th>
-                      <th>Price</th>
-                      <th>Actions</th>
+                      <th>{t('image')}</th>
+                      <th>{t('name')}</th>
+                      <th>{t('price')}</th>
+                      <th>{t('actions')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -712,7 +754,7 @@ export default function Home() {
                                 color: '#9ca3af',
                               }}
                             >
-                              No img
+                              {t('noImg')}
                             </div>
                           )}
                         </td>
@@ -724,7 +766,7 @@ export default function Home() {
                             style={{ padding: '8px 16px', minHeight: 'auto', fontSize: '16px' }}
                             onClick={() => handleDeleteProduct(product.id)}
                           >
-                            Delete
+                            {t('delete')}
                           </button>
                         </td>
                       </tr>
@@ -738,18 +780,19 @@ export default function Home() {
 
         {adminTab === 'inquiries' && (
           <>
-            <h2 className="section-title">Customer Inquiries</h2>
+            <h2 className="section-title">{t('customerInquiries')}</h2>
             {inquiries.length === 0 ? (
-              <p style={{ color: '#6b7280' }}>No inquiries yet.</p>
+              <p style={{ color: '#6b7280' }}>{t('noInquiries')}</p>
             ) : (
               <div style={{ overflowX: 'auto' }}>
                 <table className="admin-table">
                   <thead>
                     <tr>
-                      <th>Customer Name</th>
-                      <th>Phone</th>
-                      <th>Product</th>
-                      <th>Date</th>
+                      <th>{t('customerName')}</th>
+                      <th>{t('phone')}</th>
+                      <th>{t('product')}</th>
+                      <th>{t('date')}</th>
+                      <th>{t('actions')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -758,7 +801,16 @@ export default function Home() {
                         <td style={{ fontWeight: '600' }}>{inquiry.customer_name}</td>
                         <td>{inquiry.customer_phone}</td>
                         <td>{inquiry.product_name}</td>
-                        <td>{new Date(inquiry.created_at).toLocaleDateString()}</td>
+                        <td>{new Date(inquiry.created_at).toLocaleDateString(language === 'zh' ? 'zh-CN' : 'en-US')}</td>
+                        <td>
+                          <button
+                            className="btn btn-primary"
+                            style={{ padding: '8px 16px', minHeight: 'auto', fontSize: '14px' }}
+                            onClick={() => handleAcknowledgeInquiry(inquiry.id)}
+                          >
+                            {t('acknowledge')}
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -775,29 +827,24 @@ export default function Home() {
   if (view === 'customer-code') {
     return (
       <div className="container">
+        <LanguageSwitcher />
         <div className="header">
-          <h1>Verification Required</h1>
-          <p>A verification code has been sent to the store owner. Please enter the code below.</p>
+          <h1>{t('verificationTitle')}</h1>
+          <p>{t('verificationSubtitle')}</p>
         </div>
 
         <div style={{ maxWidth: '400px', margin: '0 auto' }}>
           {error && <div className="message message-error">{error}</div>}
 
-          {pendingCode && (
-            <div className="message message-success">
-              <strong>Development Mode:</strong> Your verification code is <strong>{pendingCode}</strong>
-            </div>
-          )}
-
           <form onSubmit={handleCodeVerify}>
             <div className="form-group">
-              <label className="label">Verification Code</label>
+              <label className="label">{t('verificationCode')}</label>
               <input
                 type="text"
                 className="input"
                 value={verificationCode}
                 onChange={(e) => setVerificationCode(e.target.value)}
-                placeholder="Enter 4-digit code"
+                placeholder={t('enterCode')}
                 maxLength={4}
                 pattern="[0-9]{4}"
                 style={{ textAlign: 'center', fontSize: '24px', letterSpacing: '8px' }}
@@ -811,7 +858,7 @@ export default function Home() {
               style={{ width: '100%', marginBottom: '16px' }}
               disabled={loading}
             >
-              {loading ? 'Verifying...' : 'Verify Code'}
+              {loading ? t('verifying') : t('verifyCode')}
             </button>
           </form>
 
@@ -820,7 +867,7 @@ export default function Home() {
             style={{ width: '100%' }}
             onClick={() => setView('login-choice')}
           >
-            Back
+            {t('back')}
           </button>
         </div>
       </div>
@@ -831,9 +878,10 @@ export default function Home() {
   if (view === 'customer-onboard') {
     return (
       <div className="container">
+        <LanguageSwitcher />
         <div className="header">
-          <h1>Almost There!</h1>
-          <p>Please enter your name and phone number to continue</p>
+          <h1>{t('almostThere')}</h1>
+          <p>{t('onboardingSubtitle')}</p>
         </div>
 
         <div style={{ maxWidth: '400px', margin: '0 auto' }}>
@@ -841,25 +889,25 @@ export default function Home() {
 
           <form onSubmit={handleCustomerOnboard}>
             <div className="form-group">
-              <label className="label">Your Name</label>
+              <label className="label">{t('yourName')}</label>
               <input
                 type="text"
                 className="input"
                 value={customerName}
                 onChange={(e) => setCustomerName(e.target.value)}
-                placeholder="Enter your full name"
+                placeholder={t('namePlaceholder')}
                 required
               />
             </div>
 
             <div className="form-group">
-              <label className="label">Phone Number</label>
+              <label className="label">{t('phoneNumber')}</label>
               <input
                 type="tel"
                 className="input"
                 value={customerPhone}
                 onChange={(e) => setCustomerPhone(e.target.value)}
-                placeholder="Enter your phone number"
+                placeholder={t('phonePlaceholder')}
                 required
               />
             </div>
@@ -870,7 +918,7 @@ export default function Home() {
               style={{ width: '100%' }}
               disabled={loading}
             >
-              {loading ? 'Saving...' : 'Continue to Products'}
+              {loading ? t('saving') : t('continueToProducts')}
             </button>
           </form>
         </div>
@@ -882,9 +930,10 @@ export default function Home() {
   if (view === 'customer-products') {
     return (
       <div className="container">
+        <LanguageSwitcher />
         <div className="header">
-          <h1>Our Products</h1>
-          <p>Welcome, {currentCustomer?.name}! Click on any product to inquire.</p>
+          <h1>{t('ourProducts')}</h1>
+          <p>{t('welcomeCustomer')}, {currentCustomer?.name}! {t('clickToInquire')}</p>
         </div>
 
         {error && <div className="message message-error">{error}</div>}
@@ -892,7 +941,7 @@ export default function Home() {
 
         {products.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '40px' }}>
-            <p style={{ fontSize: '20px', color: '#6b7280' }}>No products available yet. Please check back later.</p>
+            <p style={{ fontSize: '20px', color: '#6b7280' }}>{t('noProductsAvailable')}</p>
           </div>
         ) : (
           <div className="product-grid">
@@ -922,7 +971,7 @@ export default function Home() {
                       fontSize: '16px',
                     }}
                   >
-                    No image
+                    {t('noImage')}
                   </div>
                 )}
                 <div className="product-info">
@@ -941,12 +990,12 @@ export default function Home() {
         {selectedProduct && (
           <div className="modal-overlay" onClick={() => setSelectedProduct(null)}>
             <div className="modal" onClick={(e) => e.stopPropagation()}>
-              <h2>Interested in this product?</h2>
+              <h2>{t('interestedInProduct')}</h2>
               <p style={{ marginBottom: '24px', fontSize: '18px' }}>
                 <strong>{selectedProduct.name}</strong> - ${selectedProduct.price.toFixed(2)}
               </p>
               <p style={{ marginBottom: '24px', color: '#6b7280' }}>
-                Click the button below and the store owner will contact you at{' '}
+                {t('contactMessage')}{' '}
                 <strong>{currentCustomer?.phone}</strong>
               </p>
 
@@ -957,14 +1006,14 @@ export default function Home() {
                   onClick={handleInquiry}
                   disabled={loading}
                 >
-                  {loading ? 'Sending...' : 'Yes, Contact Me'}
+                  {loading ? t('sending') : t('yesContactMe')}
                 </button>
                 <button
                   className="btn btn-secondary"
                   style={{ flex: 1 }}
                   onClick={() => setSelectedProduct(null)}
                 >
-                  Cancel
+                  {t('cancel')}
                 </button>
               </div>
             </div>
@@ -978,17 +1027,18 @@ export default function Home() {
   if (view === 'customer-verify') {
     return (
       <div className="container" style={{ textAlign: 'center', paddingTop: '100px' }}>
+        <LanguageSwitcher />
         {error ? (
           <>
             <div className="message message-error" style={{ maxWidth: '400px', margin: '0 auto 24px' }}>
               {error}
             </div>
             <button className="btn btn-secondary" onClick={() => setView('login-choice')}>
-              Back
+              {t('back')}
             </button>
           </>
         ) : (
-          <p style={{ fontSize: '24px' }}>Checking your device...</p>
+          <p style={{ fontSize: '24px' }}>{t('checkingDevice')}</p>
         )}
       </div>
     );

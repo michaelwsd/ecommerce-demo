@@ -1,0 +1,230 @@
+export type Language = 'en' | 'zh';
+
+export const translations = {
+  en: {
+    // Common
+    loading: 'Loading...',
+    back: 'Back',
+    cancel: 'Cancel',
+    delete: 'Delete',
+    save: 'Save',
+
+    // Login choice
+    welcomeTitle: 'Welcome to Our Store',
+    welcomeSubtitle: 'Please select how you would like to continue',
+    iAmOwner: 'I am the Store Owner',
+    iAmCustomer: 'I am a Customer',
+
+    // Owner login
+    ownerLoginTitle: 'Owner Login',
+    ownerLoginSubtitle: 'Enter your credentials to access the dashboard',
+    username: 'Username',
+    usernamePlaceholder: 'Enter your username',
+    password: 'Password',
+    passwordPlaceholder: 'Enter your password',
+    login: 'Login',
+    loggingIn: 'Logging in...',
+    loginFailed: 'Login failed. Please try again.',
+    invalidCredentials: 'Invalid credentials',
+
+    // Owner dashboard
+    dashboardTitle: 'Owner Dashboard',
+    dashboardSubtitle: 'Manage your products and view customer inquiries',
+    logout: 'Logout',
+    inbox: 'Inbox',
+    products: 'Products',
+    inquiries: 'Inquiries',
+    messages: 'Messages',
+    markAllRead: 'Mark All Read',
+    noMessages: 'No messages yet',
+    messagesWillAppear: 'Verification codes and customer inquiries will appear here',
+    new: 'New',
+    acknowledge: 'Acknowledge',
+
+    // Products
+    addNewProduct: 'Add New Product',
+    productName: 'Product Name',
+    productNamePlaceholder: 'Enter product name',
+    description: 'Description',
+    descriptionPlaceholder: 'Enter product description',
+    price: 'Price ($)',
+    productImage: 'Product Image',
+    addProduct: 'Add Product',
+    adding: 'Adding...',
+    productAdded: 'Product added successfully!',
+    failedAddProduct: 'Failed to add product',
+    currentProducts: 'Current Products',
+    noProducts: 'No products yet. Add your first product above.',
+    image: 'Image',
+    name: 'Name',
+    actions: 'Actions',
+    noImg: 'No img',
+    noImage: 'No image',
+    confirmDeleteProduct: 'Are you sure you want to delete this product?',
+    failedDeleteProduct: 'Failed to delete product',
+
+    // Inquiries
+    customerInquiries: 'Customer Inquiries',
+    noInquiries: 'No inquiries yet.',
+    customerName: 'Customer Name',
+    phone: 'Phone',
+    product: 'Product',
+    date: 'Date',
+
+    // Customer verification
+    verificationTitle: 'Verification Required',
+    verificationSubtitle: 'A verification code has been sent to the store owner. Please enter the code below.',
+    verificationCode: 'Verification Code',
+    enterCode: 'Enter 4-digit code',
+    verifyCode: 'Verify Code',
+    verifying: 'Verifying...',
+    verificationFailed: 'Verification failed. Please try again.',
+    verificationRequestFailed: 'Verification request failed. Please try again.',
+    invalidCode: 'Invalid code',
+    checkingDevice: 'Checking your device...',
+
+    // Customer onboarding
+    almostThere: 'Almost There!',
+    onboardingSubtitle: 'Please enter your name and phone number to continue',
+    yourName: 'Your Name',
+    namePlaceholder: 'Enter your full name',
+    phoneNumber: 'Phone Number',
+    phonePlaceholder: 'Enter your phone number',
+    continueToProducts: 'Continue to Products',
+    saving: 'Saving...',
+    onboardingFailed: 'Onboarding failed',
+    onboardingFailedRetry: 'Onboarding failed. Please try again.',
+
+    // Customer products
+    ourProducts: 'Our Products',
+    welcomeCustomer: 'Welcome',
+    clickToInquire: 'Click on any product to inquire.',
+    noProductsAvailable: 'No products available yet. Please check back later.',
+    interestedInProduct: 'Interested in this product?',
+    contactMessage: 'Click the button below and the store owner will contact you at',
+    yesContactMe: 'Yes, Contact Me',
+    sending: 'Sending...',
+    inquirySent: 'Inquiry sent! The owner will contact you soon.',
+    failedInquiry: 'Failed to send inquiry',
+    failedInquiryRetry: 'Failed to send inquiry. Please try again.',
+
+    // Language
+    language: 'Language',
+    english: 'English',
+    chinese: 'Chinese',
+  },
+  zh: {
+    // Common
+    loading: '加载中...',
+    back: '返回',
+    cancel: '取消',
+    delete: '删除',
+    save: '保存',
+
+    // Login choice
+    welcomeTitle: '欢迎光临本店',
+    welcomeSubtitle: '请选择您的身份继续',
+    iAmOwner: '我是店主',
+    iAmCustomer: '我是顾客',
+
+    // Owner login
+    ownerLoginTitle: '店主登录',
+    ownerLoginSubtitle: '输入您的凭据以访问仪表板',
+    username: '用户名',
+    usernamePlaceholder: '输入您的用户名',
+    password: '密码',
+    passwordPlaceholder: '输入您的密码',
+    login: '登录',
+    loggingIn: '登录中...',
+    loginFailed: '登录失败，请重试。',
+    invalidCredentials: '凭据无效',
+
+    // Owner dashboard
+    dashboardTitle: '店主仪表板',
+    dashboardSubtitle: '管理您的产品和查看客户咨询',
+    logout: '退出登录',
+    inbox: '收件箱',
+    products: '产品',
+    inquiries: '咨询',
+    messages: '消息',
+    markAllRead: '全部标记已读',
+    noMessages: '暂无消息',
+    messagesWillAppear: '验证码和客户咨询将显示在这里',
+    new: '新',
+    acknowledge: '确认',
+
+    // Products
+    addNewProduct: '添加新产品',
+    productName: '产品名称',
+    productNamePlaceholder: '输入产品名称',
+    description: '描述',
+    descriptionPlaceholder: '输入产品描述',
+    price: '价格 ($)',
+    productImage: '产品图片',
+    addProduct: '添加产品',
+    adding: '添加中...',
+    productAdded: '产品添加成功！',
+    failedAddProduct: '添加产品失败',
+    currentProducts: '当前产品',
+    noProducts: '暂无产品。请在上方添加您的第一个产品。',
+    image: '图片',
+    name: '名称',
+    actions: '操作',
+    noImg: '无图',
+    noImage: '无图片',
+    confirmDeleteProduct: '您确定要删除此产品吗？',
+    failedDeleteProduct: '删除产品失败',
+
+    // Inquiries
+    customerInquiries: '客户咨询',
+    noInquiries: '暂无咨询。',
+    customerName: '客户姓名',
+    phone: '电话',
+    product: '产品',
+    date: '日期',
+
+    // Customer verification
+    verificationTitle: '需要验证',
+    verificationSubtitle: '验证码已发送给店主。请在下方输入验证码。',
+    verificationCode: '验证码',
+    enterCode: '输入4位验证码',
+    verifyCode: '验证',
+    verifying: '验证中...',
+    verificationFailed: '验证失败，请重试。',
+    verificationRequestFailed: '验证请求失败，请重试。',
+    invalidCode: '验证码无效',
+    checkingDevice: '正在检查您的设备...',
+
+    // Customer onboarding
+    almostThere: '即将完成！',
+    onboardingSubtitle: '请输入您的姓名和电话号码以继续',
+    yourName: '您的姓名',
+    namePlaceholder: '输入您的全名',
+    phoneNumber: '电话号码',
+    phonePlaceholder: '输入您的电话号码',
+    continueToProducts: '继续浏览产品',
+    saving: '保存中...',
+    onboardingFailed: '注册失败',
+    onboardingFailedRetry: '注册失败，请重试。',
+
+    // Customer products
+    ourProducts: '我们的产品',
+    welcomeCustomer: '欢迎',
+    clickToInquire: '点击任何产品进行咨询。',
+    noProductsAvailable: '暂无可用产品。请稍后再来查看。',
+    interestedInProduct: '对此产品感兴趣？',
+    contactMessage: '点击下方按钮，店主将通过以下方式联系您',
+    yesContactMe: '是的，联系我',
+    sending: '发送中...',
+    inquirySent: '咨询已发送！店主将很快与您联系。',
+    failedInquiry: '发送咨询失败',
+    failedInquiryRetry: '发送咨询失败，请重试。',
+
+    // Language
+    language: '语言',
+    english: '英语',
+    chinese: '中文',
+  },
+} as const;
+
+export type TranslationKey = keyof typeof translations.en;

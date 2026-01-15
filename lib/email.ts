@@ -2,11 +2,11 @@
 import { createOwnerMessage } from './db';
 
 export async function sendVerificationCodeToOwner(code: string, deviceId: string) {
-  // Save message to owner inbox
+  // Save message to owner inbox - only show code, no device info
   createOwnerMessage(
     'verification',
-    'New Device Verification Request',
-    `A new device is requesting access to your store.\n\nVerification Code: ${code}\n\nDevice ID: ${deviceId.substring(0, 8)}...`,
+    'New Verification Code',
+    code,
     { code, deviceId }
   );
 

@@ -150,6 +150,11 @@ export function getAllInquiries() {
   return db.prepare('SELECT * FROM inquiries ORDER BY created_at DESC').all();
 }
 
+export function deleteInquiry(id: number) {
+  const db = getDb();
+  return db.prepare('DELETE FROM inquiries WHERE id = ?').run(id);
+}
+
 // Owner message/inbox operations
 export function createOwnerMessage(
   type: 'verification' | 'inquiry',

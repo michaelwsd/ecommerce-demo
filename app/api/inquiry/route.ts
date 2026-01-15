@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createInquiry, getAllInquiries, getVerifiedDevice } from '@/lib/db';
+import { createInquiry, getAllInquiries, getVerifiedDevice, deleteInquiry } from '@/lib/db';
 import { sendInquiryNotificationToOwner } from '@/lib/email';
 
 export async function GET(request: NextRequest) {
@@ -67,6 +67,31 @@ export async function POST(request: NextRequest) {
     console.error('Error creating inquiry:', error);
     return NextResponse.json(
       { error: 'Failed to send inquiry' },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    // Check owner authentication
+    const ownerSession = request.cookies.get('owner_session');
+    if (ownerSession?.value !== 'authenticated') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const { inquiryId } = await request.json();
+
+    if (!inquiryId) {
+      return NextResponse.json({ error: 'Inquiry ID required' }, { status: 400 });
+    }
+
+    deleteInquiry(inquiryId);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting inquiry:', error);
+    return NextResponse.json(
+      { error: 'Failed to delete inquiry' },
       { status: 500 }
     );
   }

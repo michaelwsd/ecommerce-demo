@@ -1,14 +1,14 @@
 // Owner credentials from environment variables
 export function getOwnerCredentials() {
   return {
-    email: process.env.OWNER_EMAIL || 'admin@store.com',
+    username: process.env.OWNER_USERNAME || 'admin',
     password: process.env.OWNER_PASSWORD || 'admin123',
   };
 }
 
-export function validateOwnerCredentials(email: string, password: string): boolean {
+export function validateOwnerCredentials(username: string, password: string): boolean {
   const credentials = getOwnerCredentials();
-  return email === credentials.email && password === credentials.password;
+  return username === credentials.username && password === credentials.password;
 }
 
 export function generateVerificationCode(): string {

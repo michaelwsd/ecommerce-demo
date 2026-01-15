@@ -3,16 +3,16 @@ import { validateOwnerCredentials } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    const { username, password } = await request.json();
 
-    if (!email || !password) {
+    if (!username || !password) {
       return NextResponse.json(
-        { error: 'Email and password are required' },
+        { error: 'Username and password are required' },
         { status: 400 }
       );
     }
 
-    const isValid = validateOwnerCredentials(email, password);
+    const isValid = validateOwnerCredentials(username, password);
 
     if (isValid) {
       const response = NextResponse.json({ success: true, role: 'owner' });

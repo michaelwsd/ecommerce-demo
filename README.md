@@ -26,6 +26,16 @@ A minimalistic, single-page e-commerce application built with Next.js and SQLite
 - Owner receives notification with customer name, phone, and product name
 - All inquiries logged in the database
 
+### Owner Inbox
+- Centralized inbox for verification codes and customer inquiries
+- Mark messages as read individually or all at once
+- Visual indicators for new/unread messages
+
+### Internationalization
+- Full support for English and Chinese languages
+- Language switcher accessible throughout the app
+- All UI text properly translated
+
 ### Accessible UI
 - Large, legible fonts (18px minimum)
 - High contrast (dark text on light background)
@@ -114,8 +124,9 @@ export async function sendVerificationCodeToOwner(code: string, deviceId: string
 ```
 ├── app/
 │   ├── api/
-│   │   ├── auth/          # Owner authentication
+│   │   ├── auth/          # Owner authentication (login, logout, check)
 │   │   ├── customer/      # Customer onboarding
+│   │   ├── inbox/         # Owner inbox messages
 │   │   ├── inquiry/       # Product inquiries
 │   │   ├── products/      # Product CRUD
 │   │   └── verify/        # Device verification
@@ -126,6 +137,7 @@ export async function sendVerificationCodeToOwner(code: string, deviceId: string
 │   ├── auth.ts            # Authentication utilities
 │   ├── db.ts              # SQLite database operations
 │   ├── email.ts           # Email placeholder functions
+│   ├── translations.ts    # i18n translations (English/Chinese)
 │   └── types.ts           # TypeScript interfaces
 ├── data/                  # SQLite database (auto-created)
 ├── public/uploads/        # Product images
@@ -140,6 +152,7 @@ The SQLite database (`data/store.db`) contains:
 - **verified_devices** - Verified customer devices
 - **pending_verifications** - Temporary verification codes
 - **inquiries** - Customer product inquiries
+- **inbox_messages** - Owner inbox messages (verification codes, inquiries)
 
 ## Development vs Production
 
@@ -160,12 +173,17 @@ For production:
 2. Enter credentials
 3. Add products with name, description, price, and image
 4. View customer inquiries in the "Inquiries" tab
+5. Check the "Inbox" tab for verification codes and messages
 
 ### As Customer
 1. Click "I am a Customer"
-2. Enter verification code (check owner's email or console in dev mode)
+2. Enter verification code (check owner's inbox or console in dev mode)
 3. Enter your name and phone number
 4. Browse products and click to inquire
+
+### Switching Languages
+- Click the language selector to switch between English and Chinese
+- Language preference is saved locally
 
 ## License
 
