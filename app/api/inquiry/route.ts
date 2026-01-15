@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const inquiries = getAllInquiries();
+    const inquiries = await getAllInquiries();
     return NextResponse.json({ inquiries });
   } catch (error) {
     console.error('Error fetching inquiries:', error);
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const device = getVerifiedDevice(deviceId) as { name?: string; phone?: string } | undefined;
+    const device = await getVerifiedDevice(deviceId) as { name?: string; phone?: string } | null;
 
     if (!device || !device.name || !device.phone) {
       return NextResponse.json(
@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Create inquiry record
-    createInquiry(device.name, device.phone, productName, productId);
+    await createInquiry(device.name, device.phone, productName, productId);
 
     // Send notification to owner
     await sendInquiryNotificationToOwner(device.name, device.phone, productName);
@@ -86,7 +86,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Inquiry ID required' }, { status: 400 });
     }
 
-    deleteInquiry(inquiryId);
+    await deleteInquiry(inquiryId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting inquiry:', error);

@@ -15,8 +15,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const messages = getAllOwnerMessages();
-    const unreadCount = getUnreadMessageCount();
+    const messages = await getAllOwnerMessages();
+    const unreadCount = await getUnreadMessageCount();
 
     return NextResponse.json({ messages, unreadCount });
   } catch (error) {
@@ -39,12 +39,12 @@ export async function PATCH(request: NextRequest) {
     const { action, messageId } = await request.json();
 
     if (action === 'markRead' && messageId) {
-      markMessageAsRead(messageId);
+      await markMessageAsRead(messageId);
       return NextResponse.json({ success: true });
     }
 
     if (action === 'markAllRead') {
-      markAllMessagesAsRead();
+      await markAllMessagesAsRead();
       return NextResponse.json({ success: true });
     }
 
@@ -72,7 +72,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Message ID required' }, { status: 400 });
     }
 
-    deleteOwnerMessage(messageId);
+    await deleteOwnerMessage(messageId);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Error deleting message:', error);

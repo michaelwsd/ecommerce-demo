@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const isValid = verifyCode(deviceId, code);
+    const isValid = await verifyCode(deviceId, code);
 
     if (isValid) {
       return NextResponse.json({

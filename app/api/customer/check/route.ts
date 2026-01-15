@@ -11,10 +11,10 @@ export async function GET(request: NextRequest) {
     });
   }
 
-  const verified = isDeviceVerified(deviceId);
+  const verified = await isDeviceVerified(deviceId);
 
   if (verified) {
-    const device = getVerifiedDevice(deviceId) as { name?: string; phone?: string } | undefined;
+    const device = await getVerifiedDevice(deviceId) as { name?: string; phone?: string } | null;
     return NextResponse.json({
       verified: true,
       hasOnboarded: !!device?.name,

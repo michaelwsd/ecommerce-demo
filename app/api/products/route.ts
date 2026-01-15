@@ -1,11 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getAllProducts, createProduct } from '@/lib/db';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
+import { getAllProducts, createProduct, uploadProductImage } from '@/lib/db';
 
 export async function GET() {
   try {
-    const products = getAllProducts();
+    const products = await getAllProducts();
     return NextResponse.json({ products });
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -43,20 +41,14 @@ export async function POST(request: NextRequest) {
     let imagePath: string | null = null;
 
     if (image && image.size > 0) {
-      const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
-      await mkdir(uploadsDir, { recursive: true });
-
       const bytes = await image.arrayBuffer();
       const buffer = Buffer.from(bytes);
 
       const filename = `${Date.now()}-${image.name.replace(/[^a-zA-Z0-9.-]/g, '_')}`;
-      const filepath = path.join(uploadsDir, filename);
-
-      await writeFile(filepath, buffer);
-      imagePath = `/uploads/${filename}`;
+      imagePath = await uploadProductImage(buffer, filename);
     }
 
-    const result = createProduct(name, description || '', price, imagePath);
+    const result = await createProduct(name, description || '', price, imagePath);
 
     return NextResponse.json({
       success: true,

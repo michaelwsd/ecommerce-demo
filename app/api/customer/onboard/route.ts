@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify the code again
-    const isValid = verifyCode(deviceId, code);
+    const isValid = await verifyCode(deviceId, code);
 
     if (!isValid) {
       return NextResponse.json(
@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Complete verification and store customer info
-    completeVerification(deviceId, name, phone);
+    await completeVerification(deviceId, name, phone);
 
     const response = NextResponse.json({
       success: true,

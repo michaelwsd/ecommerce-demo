@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { deleteProduct, getProductById } from '@/lib/db';
-import { unlink } from 'fs/promises';
-import path from 'path';
+import { deleteProduct, getProductById, deleteProductImage } from '@/lib/db';
 
 interface Product {
   id: number;
@@ -37,7 +35,7 @@ export async function DELETE(
     }
 
     // Get product to delete image file
-    const product = getProductById(productId) as Product | undefined;
+    const product = await getProductById(productId) as Product | null;
 
     if (!product) {
       return NextResponse.json(
@@ -46,17 +44,20 @@ export async function DELETE(
       );
     }
 
-    // Delete image file if exists
+    // Delete image from Supabase Storage if exists
     if (product.image_path) {
       try {
-        const imagePath = path.join(process.cwd(), 'public', product.image_path);
-        await unlink(imagePath);
+        // Extract filename from the full URL
+        const filename = product.image_path.split('/').pop();
+        if (filename) {
+          await deleteProductImage(filename);
+        }
       } catch {
         // Ignore file deletion errors
       }
     }
 
-    deleteProduct(productId);
+    await deleteProduct(productId);
 
     return NextResponse.json({ success: true });
   } catch (error) {

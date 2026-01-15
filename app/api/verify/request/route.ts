@@ -9,9 +9,9 @@ export async function POST(request: NextRequest) {
 
     // Check if device is already verified
     if (existingDeviceId) {
-      const verified = isDeviceVerified(existingDeviceId);
+      const verified = await isDeviceVerified(existingDeviceId);
       if (verified) {
-        const device = getVerifiedDevice(existingDeviceId);
+        const device = await getVerifiedDevice(existingDeviceId);
         return NextResponse.json({
           verified: true,
           hasOnboarded: !!(device as { name?: string })?.name,
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
     const code = generateVerificationCode();
 
     // Store pending verification
-    createPendingVerification(deviceId, code);
+    await createPendingVerification(deviceId, code);
 
     // Send code to owner (placeholder)
     await sendVerificationCodeToOwner(code, deviceId);
