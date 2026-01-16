@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { translations, Language, TranslationKey } from '@/lib/translations';
 import { LanguageSwitcher } from '@/components';
 
-export default function VerifyPage() {
+function VerifyContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const phone = searchParams.get('phone');
@@ -131,5 +131,17 @@ export default function VerifyPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={
+      <div className="container" style={{ textAlign: 'center', paddingTop: '100px' }}>
+        <p style={{ fontSize: '24px' }}>Loading...</p>
+      </div>
+    }>
+      <VerifyContent />
+    </Suspense>
   );
 }
