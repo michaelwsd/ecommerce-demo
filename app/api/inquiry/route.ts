@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
-import { createInquiry, getAllInquiries, getVerifiedDevice, deleteInquiry, getClerkUser } from '@/lib/db';
+import { createInquiry, getAllInquiries, deleteInquiry, getPhoneUser } from '@/lib/db';
 import { sendInquiryNotificationToOwner } from '@/lib/email';
 
 export async function GET(request: NextRequest) {
@@ -30,29 +29,17 @@ export async function POST(request: NextRequest) {
     let customerName: string | undefined;
     let customerPhone: string | undefined;
 
-    // First try Clerk authentication
-    const { userId } = await auth();
-    if (userId) {
-      const clerkUser = await getClerkUser(userId);
-      if (clerkUser) {
-        customerName = clerkUser.name;
-        customerPhone = clerkUser.phone;
+    // Check phone-based authentication
+    const phoneFromCookie = request.cookies.get('customer_phone')?.value;
+    if (phoneFromCookie) {
+      const phoneUser = await getPhoneUser(phoneFromCookie);
+      if (phoneUser) {
+        customerName = phoneUser.name;
+        customerPhone = phoneUser.phone;
       }
     }
 
-    // Fall back to device-based authentication
-    if (!customerName || !customerPhone) {
-      const deviceId = request.cookies.get('device_id')?.value;
-      if (deviceId) {
-        const device = await getVerifiedDevice(deviceId) as { name?: string; phone?: string } | null;
-        if (device?.name && device?.phone) {
-          customerName = device.name;
-          customerPhone = device.phone;
-        }
-      }
-    }
-
-    // Check if we have customer info from either method
+    // Check if we have customer info
     if (!customerName || !customerPhone) {
       return NextResponse.json(
         { error: 'Not authenticated' },

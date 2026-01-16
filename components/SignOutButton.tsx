@@ -1,6 +1,6 @@
 'use client';
 
-import { useClerk } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 
 interface SignOutButtonProps {
   label: string;
@@ -8,10 +8,11 @@ interface SignOutButtonProps {
 }
 
 export function SignOutButton({ label, className = '' }: SignOutButtonProps) {
-  const { signOut } = useClerk();
+  const router = useRouter();
 
   const handleSignOut = async () => {
-    await signOut({ redirectUrl: '/' });
+    await fetch('/api/customer/logout', { method: 'POST' });
+    router.push('/');
   };
 
   return (

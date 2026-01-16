@@ -1,23 +1,10 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
 
-// Define public routes that don't require authentication
-const isPublicRoute = createRouteMatcher([
-  '/',
-  '/owner',
-  '/products',
-  '/onboard',
-  '/api/auth/(.*)',
-  '/api/products',
-  '/api/customer/(.*)',
-]);
-
-export default clerkMiddleware(async (auth, req) => {
-  // Allow public routes and API routes to pass through
-  // The app handles its own auth logic for owner vs customer
-  if (isPublicRoute(req)) {
-    return;
-  }
-});
+// Simple middleware - no Clerk, just pass through
+// Auth is handled by individual pages/API routes checking cookies
+export function middleware() {
+  return NextResponse.next();
+}
 
 export const config = {
   matcher: [

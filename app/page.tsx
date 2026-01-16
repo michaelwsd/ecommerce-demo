@@ -2,20 +2,19 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser, SignInButton, SignUpButton } from '@clerk/nextjs';
 import { translations, Language, TranslationKey } from '@/lib/translations';
 import { LanguageSwitcher } from '@/components';
 
 export default function Home() {
   const router = useRouter();
-  const { isLoaded, isSignedIn } = useUser();
   const [loading, setLoading] = useState(true);
+  const [formLoading, setFormLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [language, setLanguage] = useState<Language>('en');
   const t = (key: TranslationKey) => translations[language][key];
 
   useEffect(() => {
-    if (!isLoaded) return;
-
     const checkAuth = async () => {
       try {
         // Check if owner is logged in
@@ -27,24 +26,11 @@ export default function Home() {
           return;
         }
 
-        // If user is signed in with Clerk, check if they're registered
-        if (isSignedIn) {
-          const clerkRes = await fetch('/api/clerk-user');
-          const clerkData = await clerkRes.json();
-
-          if (clerkData.exists) {
-            router.push('/products');
-          } else {
-            router.push('/onboard');
-          }
-          return;
-        }
-
-        // Check if customer is verified (legacy device-based auth)
+        // Check if customer is logged in via phone session
         const customerRes = await fetch('/api/customer/check');
         const customerData = await customerRes.json();
 
-        if (customerData.verified && customerData.hasOnboarded) {
+        if (customerData.authenticated) {
           router.push('/products');
           return;
         }
@@ -56,7 +42,39 @@ export default function Home() {
     };
 
     checkAuth();
-  }, [isLoaded, isSignedIn, router]);
+  }, [router]);
+
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormLoading(true);
+    setError('');
+
+    try {
+      const res = await fetch('/api/phone-auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: phoneNumber }),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        if (data.loggedIn) {
+          // Returning user - already logged in, go to products
+          router.push('/products');
+        } else {
+          // New user - redirect to verification page to enter code and name
+          router.push(`/verify?phone=${encodeURIComponent(phoneNumber)}`);
+        }
+      } else {
+        setError(data.error || t('phoneSubmitFailed'));
+      }
+    } catch {
+      setError(t('phoneSubmitFailed'));
+    } finally {
+      setFormLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -77,29 +95,40 @@ export default function Home() {
       <div style={{ maxWidth: '400px', margin: '0 auto' }}>
         <button
           className="btn btn-primary"
-          style={{ width: '100%', marginBottom: '16px' }}
+          style={{ width: '100%', marginBottom: '24px' }}
           onClick={() => router.push('/owner')}
         >
           {t('iAmOwner')}
         </button>
-        <div style={{ marginBottom: '16px' }}>
-          <SignInButton mode="modal">
+
+        <div style={{ borderTop: '1px solid #e5e7eb', paddingTop: '24px' }}>
+          <h3 style={{ marginBottom: '16px', textAlign: 'center' }}>{t('iAmCustomer')}</h3>
+
+          {error && <div className="message message-error">{error}</div>}
+
+          <form onSubmit={handlePhoneSubmit}>
+            <div className="form-group">
+              <label className="label">{t('phoneNumber')}</label>
+              <input
+                type="tel"
+                className="input"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder={t('phonePlaceholder')}
+                required
+              />
+            </div>
+
             <button
+              type="submit"
               className="btn btn-secondary"
               style={{ width: '100%' }}
+              disabled={formLoading}
             >
-              {t('signIn')} ({t('iAmCustomer')})
+              {formLoading ? t('loading') : t('continueWithPhone')}
             </button>
-          </SignInButton>
+          </form>
         </div>
-        <SignUpButton mode="modal">
-          <button
-            className="btn btn-secondary"
-            style={{ width: '100%' }}
-          >
-            {t('signUp')} ({t('iAmCustomer')})
-          </button>
-        </SignUpButton>
       </div>
     </div>
   );

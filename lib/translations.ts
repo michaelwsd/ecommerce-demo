@@ -118,17 +118,22 @@ export const translations = {
     selectDate: 'Select date',
     selectTime: 'Select time',
 
-    // Clerk authentication
+    // Phone authentication
     signIn: 'Sign In',
     signUp: 'Sign Up',
     signOut: 'Sign Out',
     verificationRequired: 'Verification Required',
-    newCustomerVerification: 'As a new customer, please enter the verification code from the store owner.',
+    newCustomerVerification: 'As a new customer, please enter the verification code from the store owner and your name.',
+    enterCodeToSignIn: 'Enter the verification code sent to the store owner to sign in.',
     requestCode: 'Request Code',
     requestingCode: 'Requesting...',
     codeRequested: 'Code sent to store owner. Please wait for them to provide it.',
     enterYourDetails: 'Enter Your Details',
     email: 'Email',
+    continueWithPhone: 'Continue with Phone Number',
+    phoneSubmitFailed: 'Failed to submit phone number. Please try again.',
+    verificationSuccess: 'Verification successful!',
+    verifyAndContinue: 'Verify and Continue',
 
     // Language
     language: 'Language',
@@ -252,17 +257,22 @@ export const translations = {
     selectDate: '选择日期',
     selectTime: '选择时间',
 
-    // Clerk authentication
+    // Phone authentication
     signIn: '登录',
     signUp: '注册',
     signOut: '退出',
     verificationRequired: '需要验证',
-    newCustomerVerification: '作为新客户，请输入店主提供的验证码。',
+    newCustomerVerification: '作为新客户，请输入店主提供的验证码和您的姓名。',
+    enterCodeToSignIn: '输入发送给店主的验证码以登录。',
     requestCode: '请求验证码',
     requestingCode: '请求中...',
     codeRequested: '验证码已发送给店主。请等待店主提供。',
     enterYourDetails: '输入您的信息',
     email: '邮箱',
+    continueWithPhone: '使用电话号码继续',
+    phoneSubmitFailed: '提交电话号码失败，请重试。',
+    verificationSuccess: '验证成功！',
+    verifyAndContinue: '验证并继续',
 
     // Language
     language: '语言',

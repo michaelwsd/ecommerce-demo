@@ -1,32 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { isDeviceVerified, getVerifiedDevice } from '@/lib/db';
+import { getPhoneUser } from '@/lib/db';
 
 export async function GET(request: NextRequest) {
-  const deviceId = request.cookies.get('device_id')?.value;
+  const customerPhone = request.cookies.get('customer_phone')?.value;
 
-  if (!deviceId) {
+  if (!customerPhone) {
     return NextResponse.json({
-      verified: false,
-      hasOnboarded: false,
+      authenticated: false,
     });
   }
 
-  const verified = await isDeviceVerified(deviceId);
+  try {
+    const user = await getPhoneUser(customerPhone);
 
-  if (verified) {
-    const device = await getVerifiedDevice(deviceId) as { name?: string; phone?: string } | null;
+    if (user) {
+      return NextResponse.json({
+        authenticated: true,
+        name: user.name,
+        phone: user.phone,
+      });
+    }
+
     return NextResponse.json({
-      verified: true,
-      hasOnboarded: !!device?.name,
-      deviceId,
-      name: device?.name,
-      phone: device?.phone,
+      authenticated: false,
+    });
+  } catch {
+    return NextResponse.json({
+      authenticated: false,
     });
   }
-
-  return NextResponse.json({
-    verified: false,
-    hasOnboarded: false,
-    deviceId,
-  });
 }

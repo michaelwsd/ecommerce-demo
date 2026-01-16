@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@clerk/nextjs';
 import { translations, Language, TranslationKey } from '@/lib/translations';
 import { LanguageSwitcher, ProductCard, InquiryModal, SignOutButton } from '@/components';
 
@@ -21,7 +20,6 @@ interface CustomerData {
 
 export default function ProductsPage() {
   const router = useRouter();
-  const { isLoaded, isSignedIn } = useUser();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -41,34 +39,16 @@ export default function ProductsPage() {
   const [collectionTime, setCollectionTime] = useState('');
 
   useEffect(() => {
-    if (!isLoaded) return;
     checkAuthAndLoad();
-  }, [isLoaded, isSignedIn]);
+  }, []);
 
   const checkAuthAndLoad = async () => {
     try {
-      // If user is signed in with Clerk, check if they're registered
-      if (isSignedIn) {
-        const clerkRes = await fetch('/api/clerk-user');
-        const clerkData = await clerkRes.json();
-
-        if (clerkData.exists) {
-          setCurrentCustomer({ name: clerkData.user.name, phone: clerkData.user.phone });
-          await loadProducts();
-          setLoading(false);
-          return;
-        } else {
-          // Not registered, redirect to onboarding
-          router.push('/onboard');
-          return;
-        }
-      }
-
-      // Check legacy device-based auth
+      // Check phone-based auth
       const customerRes = await fetch('/api/customer/check');
       const customerData = await customerRes.json();
 
-      if (customerData.verified && customerData.hasOnboarded) {
+      if (customerData.authenticated) {
         setCurrentCustomer({ name: customerData.name, phone: customerData.phone });
         await loadProducts();
         setLoading(false);
@@ -154,11 +134,9 @@ export default function ProductsPage() {
     <div className="container">
       <LanguageSwitcher language={language} onLanguageChange={setLanguage} />
       <div className="header">
-        {isSignedIn && (
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
-            <SignOutButton label={t('signOut')} />
-          </div>
-        )}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+          <SignOutButton label={t('signOut')} />
+        </div>
         <h1>{t('ourProducts')}</h1>
         <p>{t('welcomeCustomer')}, {currentCustomer?.name}! {t('clickToInquire')}</p>
       </div>

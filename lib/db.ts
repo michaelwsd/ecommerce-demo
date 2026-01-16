@@ -242,32 +242,22 @@ export async function deleteProductImage(filename: string) {
   if (error) throw error;
 }
 
-// Clerk user operations
-export async function getClerkUser(clerkUserId: string) {
+// Phone user operations
+export async function getPhoneUser(phone: string) {
   const { data, error } = await supabase
-    .from('clerk_users')
+    .from('phone_users')
     .select('*')
-    .eq('clerk_user_id', clerkUserId)
+    .eq('phone', phone)
     .single();
 
   if (error && error.code !== 'PGRST116') throw error;
   return data;
 }
 
-export async function createClerkUser(
-  clerkUserId: string,
-  email: string,
-  name: string,
-  phone: string
-) {
+export async function createPhoneUser(phone: string, name: string) {
   const { data, error } = await supabase
-    .from('clerk_users')
-    .insert({
-      clerk_user_id: clerkUserId,
-      email,
-      name,
-      phone,
-    })
+    .from('phone_users')
+    .insert({ phone, name })
     .select()
     .single();
 
@@ -275,13 +265,47 @@ export async function createClerkUser(
   return data;
 }
 
-export async function clerkUserExists(clerkUserId: string) {
+export async function phoneUserExists(phone: string) {
   const { data, error } = await supabase
-    .from('clerk_users')
+    .from('phone_users')
     .select('id')
-    .eq('clerk_user_id', clerkUserId)
+    .eq('phone', phone)
     .single();
 
   if (error && error.code !== 'PGRST116') throw error;
   return !!data;
+}
+
+// Phone verification operations
+export async function createPhonePendingVerification(phone: string, code: string) {
+  // Delete any existing pending verification for this phone
+  await supabase
+    .from('phone_pending_verifications')
+    .delete()
+    .eq('phone', phone);
+
+  const { error } = await supabase
+    .from('phone_pending_verifications')
+    .insert({ phone, code });
+
+  if (error) throw error;
+}
+
+export async function verifyPhoneCode(phone: string, code: string) {
+  const { data, error } = await supabase
+    .from('phone_pending_verifications')
+    .select('*')
+    .eq('phone', phone)
+    .eq('code', code)
+    .single();
+
+  if (error && error.code !== 'PGRST116') throw error;
+  return !!data;
+}
+
+export async function deletePendingPhoneVerification(phone: string) {
+  await supabase
+    .from('phone_pending_verifications')
+    .delete()
+    .eq('phone', phone);
 }

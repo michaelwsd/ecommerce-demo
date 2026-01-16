@@ -1,17 +1,18 @@
 // Message functions - saves to owner inbox
 import { createOwnerMessage } from './db';
 
-export async function sendVerificationCodeToOwner(code: string, deviceId: string) {
-  // Save message to owner inbox - only show code, no device info
+export async function sendVerificationCodeToOwner(phone: string, code: string) {
+  // Save message to owner inbox - show code and phone number
   createOwnerMessage(
     'verification',
-    'New Verification Code',
+    `Verification Code for ${phone}`,
     code,
-    { code, deviceId }
+    { code, phone }
   );
 
   console.log('========================================');
   console.log('📬 NEW VERIFICATION MESSAGE SAVED TO INBOX');
+  console.log(`Phone: ${phone}`);
   console.log(`Verification Code: ${code}`);
   console.log('========================================');
 
