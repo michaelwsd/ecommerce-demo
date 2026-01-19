@@ -21,6 +21,7 @@ export interface Inquiry {
   customer_phone: string;
   product_name: string;
   product_id: number;
+  quantity: number;
   collection_date: string | null;
   collection_time: string | null;
   created_at: string;

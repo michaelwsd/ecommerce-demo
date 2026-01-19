@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { translations, Language, TranslationKey } from '@/lib/translations';
 import { LanguageSwitcher, ProductCard, InquiryModal, SignOutButton } from '@/components';
 
@@ -35,6 +36,7 @@ export default function ProductsPage() {
 
   // Inquiry state
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [quantity, setQuantity] = useState('1');
   const [collectionDate, setCollectionDate] = useState('');
   const [collectionTime, setCollectionTime] = useState('');
 
@@ -74,11 +76,13 @@ export default function ProductsPage() {
 
   const handleProductClick = (product: Product) => {
     setSelectedProduct(product);
+    setQuantity('1');
     setError('');
   };
 
   const handleCloseModal = () => {
     setSelectedProduct(null);
+    setQuantity('1');
     setCollectionDate('');
     setCollectionTime('');
     setError('');
@@ -86,6 +90,12 @@ export default function ProductsPage() {
 
   const handleInquiry = async () => {
     if (!selectedProduct) return;
+
+    const quantityValue = Number(quantity);
+    if (!quantity || Number.isNaN(quantityValue) || quantityValue < 1) {
+      setError(t('quantityRequired'));
+      return;
+    }
 
     if (!collectionDate || !collectionTime) {
       setError(t('collectionRequired'));
@@ -102,6 +112,7 @@ export default function ProductsPage() {
         body: JSON.stringify({
           productId: selectedProduct.id,
           productName: selectedProduct.name,
+          quantity: quantityValue,
           collectionDate,
           collectionTime,
         }),
@@ -134,7 +145,14 @@ export default function ProductsPage() {
     <div className="container">
       <LanguageSwitcher language={language} onLanguageChange={setLanguage} />
       <div className="header">
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px', gap: '12px', flexWrap: 'wrap' }}>
+          <Link
+            className="btn btn-secondary"
+            style={{ padding: '8px 16px', minHeight: 'auto', fontSize: '14px' }}
+            href="/orders"
+          >
+            {t('myOrders')}
+          </Link>
           <SignOutButton label={t('signOut')} />
         </div>
         <h1>{t('ourProducts')}</h1>
@@ -165,8 +183,10 @@ export default function ProductsPage() {
         <InquiryModal
           product={selectedProduct}
           customerPhone={currentCustomer.phone}
+          quantity={quantity}
           collectionDate={collectionDate}
           collectionTime={collectionTime}
+          onQuantityChange={setQuantity}
           onCollectionDateChange={setCollectionDate}
           onCollectionTimeChange={setCollectionTime}
           onSubmit={handleInquiry}
@@ -176,6 +196,8 @@ export default function ProductsPage() {
           translations={{
             interestedInProduct: t('interestedInProduct'),
             contactMessage: t('contactMessage'),
+            quantityLabel: t('quantity'),
+            quantityPlaceholder: t('quantityPlaceholder'),
             preferredCollection: t('preferredCollection'),
             collectionDate: t('collectionDate'),
             collectionTime: t('collectionTime'),

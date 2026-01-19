@@ -123,6 +123,7 @@ export async function createInquiry(
   customerPhone: string,
   productName: string,
   productId: number,
+  quantity: number,
   collectionDate?: string,
   collectionTime?: string
 ) {
@@ -131,6 +132,7 @@ export async function createInquiry(
     customer_phone: customerPhone,
     product_name: productName,
     product_id: productId,
+    quantity,
     collection_date: collectionDate || null,
     collection_time: collectionTime || null,
   });
@@ -150,6 +152,38 @@ export async function getAllInquiries() {
 
 export async function deleteInquiry(id: number) {
   const { error } = await supabase.from('inquiries').delete().eq('id', id);
+  if (error) throw error;
+}
+
+export async function getCustomerInquiries(phone: string) {
+  const { data, error } = await supabase
+    .from('inquiries')
+    .select('*')
+    .eq('customer_phone', phone)
+    .order('created_at', { ascending: false });
+
+  if (error) throw error;
+  return data;
+}
+
+export async function getCustomerInquiryById(id: number, phone: string) {
+  const { data, error } = await supabase
+    .from('inquiries')
+    .select('*')
+    .eq('id', id)
+    .eq('customer_phone', phone)
+    .single();
+
+  if (error && error.code !== 'PGRST116') throw error;
+  return data;
+}
+
+export async function deleteCustomerInquiry(id: number, phone: string) {
+  const { error } = await supabase
+    .from('inquiries')
+    .delete()
+    .eq('id', id)
+    .eq('customer_phone', phone);
   if (error) throw error;
 }
 

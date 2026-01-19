@@ -23,11 +23,12 @@ export async function sendInquiryNotificationToOwner(
   customerName: string,
   customerPhone: string,
   productName: string,
+  quantity: number,
   collectionDate?: string,
   collectionTime?: string
 ) {
   // Build message content with collection info
-  let content = `${customerName} is interested in "${productName}".\n\nContact them at: ${customerPhone}`;
+  let content = `${customerName} wants ${quantity} of "${productName}".\n\nContact them at: ${customerPhone}`;
   if (collectionDate && collectionTime) {
     content += `\n\nPreferred collection: ${collectionDate} at ${collectionTime}`;
   }
@@ -37,16 +38,42 @@ export async function sendInquiryNotificationToOwner(
     'inquiry',
     `Product Inquiry: ${productName}`,
     content,
-    { customerName, customerPhone, productName, collectionDate, collectionTime }
+    { customerName, customerPhone, productName, quantity, collectionDate, collectionTime }
   );
 
   console.log('========================================');
   console.log('📬 NEW INQUIRY MESSAGE SAVED TO INBOX');
   console.log(`Customer: ${customerName}`);
   console.log(`Product: ${productName}`);
+  console.log(`Quantity: ${quantity}`);
   if (collectionDate && collectionTime) {
     console.log(`Collection: ${collectionDate} at ${collectionTime}`);
   }
+  console.log('========================================');
+
+  return { success: true };
+}
+
+export async function sendOrderCancellationToOwner(
+  customerName: string,
+  customerPhone: string,
+  productName: string,
+  quantity: number
+) {
+  const content = `${customerName} canceled their order for ${quantity} of "${productName}".\n\nContact them at: ${customerPhone}`;
+
+  createOwnerMessage(
+    'inquiry',
+    `Order Canceled: ${productName}`,
+    content,
+    { customerName, customerPhone, productName, quantity }
+  );
+
+  console.log('========================================');
+  console.log('📬 ORDER CANCELLATION SAVED TO INBOX');
+  console.log(`Customer: ${customerName}`);
+  console.log(`Product: ${productName}`);
+  console.log(`Quantity: ${quantity}`);
   console.log('========================================');
 
   return { success: true };

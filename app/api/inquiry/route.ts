@@ -47,11 +47,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { productId, productName, collectionDate, collectionTime } = await request.json();
+    const { productId, productName, quantity, collectionDate, collectionTime } = await request.json();
 
     if (!productId || !productName) {
       return NextResponse.json(
         { error: 'Product information required' },
+        { status: 400 }
+      );
+    }
+
+    if (!quantity || quantity < 1) {
+      return NextResponse.json(
+        { error: 'Quantity is required' },
         { status: 400 }
       );
     }
@@ -64,10 +71,25 @@ export async function POST(request: NextRequest) {
     }
 
     // Create inquiry record with collection date/time
-    await createInquiry(customerName, customerPhone, productName, productId, collectionDate, collectionTime);
+    await createInquiry(
+      customerName,
+      customerPhone,
+      productName,
+      productId,
+      quantity,
+      collectionDate,
+      collectionTime
+    );
 
     // Send notification to owner with collection info
-    await sendInquiryNotificationToOwner(customerName, customerPhone, productName, collectionDate, collectionTime);
+    await sendInquiryNotificationToOwner(
+      customerName,
+      customerPhone,
+      productName,
+      quantity,
+      collectionDate,
+      collectionTime
+    );
 
     return NextResponse.json({
       success: true,

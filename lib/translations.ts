@@ -71,6 +71,7 @@ export const translations = {
     customerName: 'Customer Name',
     phone: 'Phone',
     product: 'Product',
+    quantity: 'Quantity',
     date: 'Date',
 
     // Customer verification
@@ -110,6 +111,15 @@ export const translations = {
     failedInquiry: 'Failed to send inquiry',
     failedInquiryRetry: 'Failed to send inquiry. Please try again.',
 
+    // Customer orders
+    myOrders: 'My Orders',
+    myOrdersSubtitle: 'Review your requested items and manage them here.',
+    noOrders: 'No orders yet.',
+    backToProducts: 'Back to Products',
+    confirmDeleteOrder: 'Are you sure you want to delete this order?',
+    orderDeleted: 'Order deleted.',
+    failedDeleteOrder: 'Failed to delete order.',
+
     // Collection date/time
     collectionDate: 'Collection Date',
     collectionTime: 'Collection Time',
@@ -117,6 +127,8 @@ export const translations = {
     preferredCollection: 'Preferred Collection',
     selectDate: 'Select date',
     selectTime: 'Select time',
+    quantityPlaceholder: 'Enter quantity',
+    quantityRequired: 'Please enter a quantity',
 
     // Phone authentication
     signIn: 'Sign In',
@@ -210,6 +222,7 @@ export const translations = {
     customerName: '客户姓名',
     phone: '电话',
     product: '产品',
+    quantity: '数量',
     date: '日期',
 
     // Customer verification
@@ -249,6 +262,15 @@ export const translations = {
     failedInquiry: '发送咨询失败',
     failedInquiryRetry: '发送咨询失败，请重试。',
 
+    // Customer orders
+    myOrders: '我的订单',
+    myOrdersSubtitle: '在这里查看并管理您已请求的产品。',
+    noOrders: '暂无订单。',
+    backToProducts: '返回产品页',
+    confirmDeleteOrder: '您确定要删除此订单吗？',
+    orderDeleted: '订单已删除。',
+    failedDeleteOrder: '删除订单失败。',
+
     // Collection date/time
     collectionDate: '取货日期',
     collectionTime: '取货时间',
@@ -256,6 +278,8 @@ export const translations = {
     preferredCollection: '首选取货时间',
     selectDate: '选择日期',
     selectTime: '选择时间',
+    quantityPlaceholder: '输入数量',
+    quantityRequired: '请输入数量',
 
     // Phone authentication
     signIn: '登录',

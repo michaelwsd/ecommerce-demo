@@ -19,6 +19,7 @@ interface Inquiry {
   customer_name: string;
   customer_phone: string;
   product_name: string;
+  quantity: number;
   collection_date: string | null;
   collection_time: string | null;
   created_at: string;
@@ -593,6 +594,7 @@ export default function OwnerPage() {
                     <th>{t('customerName')}</th>
                     <th>{t('phone')}</th>
                     <th>{t('product')}</th>
+                    <th>{t('quantity')}</th>
                     <th>{t('preferredCollection')}</th>
                     <th>{t('date')}</th>
                     <th>{t('actions')}</th>
@@ -604,6 +606,7 @@ export default function OwnerPage() {
                       <td style={{ fontWeight: '600' }}>{inquiry.customer_name}</td>
                       <td>{inquiry.customer_phone}</td>
                       <td>{inquiry.product_name}</td>
+                      <td>{inquiry.quantity ?? '-'}</td>
                       <td>
                         {inquiry.collection_date && inquiry.collection_time ? (
                           <span>

@@ -11,8 +11,10 @@ interface Product {
 interface InquiryModalProps {
   product: Product;
   customerPhone: string;
+  quantity: string;
   collectionDate: string;
   collectionTime: string;
+  onQuantityChange: (quantity: string) => void;
   onCollectionDateChange: (date: string) => void;
   onCollectionTimeChange: (time: string) => void;
   onSubmit: () => void;
@@ -22,6 +24,8 @@ interface InquiryModalProps {
   translations: {
     interestedInProduct: string;
     contactMessage: string;
+    quantityLabel: string;
+    quantityPlaceholder: string;
     preferredCollection: string;
     collectionDate: string;
     collectionTime: string;
@@ -34,8 +38,10 @@ interface InquiryModalProps {
 export function InquiryModal({
   product,
   customerPhone,
+  quantity,
   collectionDate,
   collectionTime,
+  onQuantityChange,
   onCollectionDateChange,
   onCollectionTimeChange,
   onSubmit,
@@ -59,6 +65,18 @@ export function InquiryModal({
         {error && <div className="message message-error" style={{ marginBottom: '16px' }}>{error}</div>}
 
         <div style={{ marginBottom: '24px' }}>
+          <div className="form-group" style={{ marginBottom: '12px' }}>
+            <label className="label">{t.quantityLabel}</label>
+            <input
+              type="number"
+              className="input"
+              value={quantity}
+              onChange={(e) => onQuantityChange(e.target.value)}
+              min="1"
+              placeholder={t.quantityPlaceholder}
+              required
+            />
+          </div>
           <h3 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: '600' }}>{t.preferredCollection}</h3>
           <div className="form-group" style={{ marginBottom: '12px' }}>
             <label className="label">{t.collectionDate}</label>
